@@ -1,0 +1,16 @@
+{
+  "name": "browsererrors.net",
+  "version": "1.0.0",
+  "keywords": [],
+  "author": "jfhr <me@jfhr.de>",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "description": "",
+  "dependencies": {
+    "ejs": "^3.1.9"
+  }
+}

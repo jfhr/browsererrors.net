@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title><%= error.code %></title>
+        <link rel="stylesheet" href="../../index.css">
+    </head>
+    <body>
+        <main>
+            <h1>
+                <%= error.code %>
+            </h1>
+            <p>
+                <%= error.code %> is an error in <%= error.browser %> with the description:
+            </p>
+            <pre><code><%= error.comment %></code></pre>
+            <p>
+                It is defined in the file
+                <a href="<%= error.href %>" rel="nofollow">
+                    <%= error.file %>, line <%= error.line %>
+                </a>
+            </p>
+        </main>
+    </body>
+</html>
