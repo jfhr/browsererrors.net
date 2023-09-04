@@ -6,6 +6,7 @@ import { iterateLines } from "./iterate-lines.js";
  *   code: string,
  *   comment: string,
  *   href: string,
+ *   href_noscript?: string,
  *   file: string,
  *   line: number,
  * }} ErrorDefinition
@@ -61,8 +62,9 @@ function *parseChromeErrors(text) {
       const comment = commentLines.splice(0).join('\n');
       const code = 'NET::ERR_' + match.groups.shortcode;
       const file = 'net/base/net_error_list.h';
+      const href_noscript = `https://chromium.googlesource.com/chromium/src/+/HEAD/net/base/net_error_list.h#${lineNumber}`;
       const href = `https://source.chromium.org/chromium/chromium/src/+/main:net/base/net_error_list.h;l=${lineNumber}`;
-      yield { browser, comment, code, href, file, line: lineNumber };
+      yield { browser, comment, code, href, href_noscript, file, line: lineNumber };
     } else {
       commentLines.splice(0);
     }

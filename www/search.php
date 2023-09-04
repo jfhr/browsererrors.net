@@ -16,7 +16,15 @@ function vibecheck($code) {
     return true;
 }
 
-$method = $_SERVER['HTTP_METHOD'];
+function fix_error_code($code) {
+    $code = trim($code);
+    if (str_starts_with($code, 'ERR_')) {
+        $code = 'NET::' . $code;
+    }
+    return $code;
+}
+
+$method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'POST' 
     || $method === 'PUT'
     || $method === 'PATCH'
@@ -47,7 +55,7 @@ if ($method === 'OPTIONS') {
 
 $code = $_GET['code'];
 if (isset($code) && vibecheck($code)) {
-    $code = preg_replace('::', '__', $code);
+    $code = fix_error_code($code);
     if (file_exists("error/$code/index.html")) {
         http_response_code(308);
         header("Location: error/$code/");
@@ -57,3 +65,5 @@ if (isset($code) && vibecheck($code)) {
 
 http_response_code(404);
 ?>
+
+Not found

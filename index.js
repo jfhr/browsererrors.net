@@ -3,29 +3,29 @@ import * as ejs from "ejs";
 import { downloadChromeErrors } from "./src/chrome.js";
 import { downloadFirefoxErrors } from "./src/firefox.js";
 
+const WEB_PREFIX = `https://browsererrors.net`;
+
 /** @type {string|null} */
 let htmlTemplate = null;
 async function readHTMLTemplate() {
-  return htmlTemplate ??= await fs.readFile('./src/error-template.ejs', 'utf-8');
+  return htmlTemplate ??= await fs.readFile('./src/templates/error.ejs', 'utf-8');
 }
 
 /**
  * @param {import("./src/chrome.js").ErrorDefinition} error 
  */
 async function writeToAPI(error) {
-  const fileName = error.code.replace('::', '__');
-  await fs.writeFile(`./www/api/${fileName}.json`, JSON.stringify(error), 'utf-8');
+  await fs.writeFile(`./www/api/${error.code}.json`, JSON.stringify(error), 'utf-8');
 }
 
 /**
  * @param {import("./src/chrome.js").ErrorDefinition} error 
  */
 async function writeHTML(error) {
-  const fileName = error.code.replace('::', '__');
   const template = await readHTMLTemplate();
   const renderedHTML = ejs.render(template, { error });
-  await fs.mkdir(`./www/error/${fileName}`, { recursive: true });
-  await fs.writeFile(`./www/error/${fileName}/index.html`, renderedHTML, 'utf-8');
+  await fs.mkdir(`./www/error/${error.code}`, { recursive: true });
+  await fs.writeFile(`./www/error/${error.code}/index.html`, renderedHTML, 'utf-8');
 }
 
 async function downloadCSS() {
@@ -36,6 +36,21 @@ async function downloadCSS() {
   }
   const css = await response.text();
   await fs.writeFile('./www/index.css', css, 'utf-8');
+}
+
+/**
+ * @param {import("./src/chrome.js").ErrorDefinition[]} errors
+ */
+async function writeSitemap(errors) {
+  const sitemap = errors.map(error => `${WEB_PREFIX}/error/${error.code}`).join('\n');
+  await fs.writeFile('./www/sitemap.txt', sitemap, 'utf-8');
+}
+
+/**
+ * @param {import("./src/chrome.js").ErrorDefinition[]} errors
+ */
+async function writeErrorsJSON(errors) {
+  await fs.writeFile('./www/api/errors.json', JSON.stringify(errors), 'utf-8');
 }
 
 async function main() {
@@ -50,6 +65,8 @@ async function main() {
     ...errors.map(writeToAPI),
     ...errors.map(writeHTML),
     downloadCSS(),
+    writeSitemap(errors),
+    writeErrorsJSON(errors),
   ]);
 }
 

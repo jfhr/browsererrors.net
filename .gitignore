@@ -1,3 +1,6 @@
 node_modules/
 www/api/
 www/error/
+www/sitemap.txt
+www/robots.txt
+www/index.css
