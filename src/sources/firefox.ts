@@ -1,4 +1,5 @@
-import { iterateLines } from "./iterate-lines.js";
+import { ErrorDefinition } from "../types";
+import { iterateLines } from "./iterate-lines";
 
 /**
 * Parse error definitions in Firefox source code, e.g.
@@ -14,11 +15,8 @@ import { iterateLines } from "./iterate-lines.js";
 *   // href depends on line number
 *   href: 'https://searchfox.org/mozilla-central/source/nsprpub/pr/include/prerr.h#3'
 * }
-* 
-* @param {string} text
-* @returns {Generator<import("./chrome.js").ErrorDefinition>}
 */
-function *parseFirefoxErrors(text) {
+function *parseFirefoxErrors(text: string): Generator<ErrorDefinition> {
   const browser = 'Firefox';
   // Match firefox PR_*_ERROR definitions, e.g.
   // #define PR_OUT_OF_MEMORY_ERROR                   (-6000L)
@@ -29,7 +27,7 @@ function *parseFirefoxErrors(text) {
   let lineNumber = 0;
   // Comment for the current error. We count multiple lines of comment as one, but reset every time
   // we see a non-comment line. Currently only accounts for slash-asterisk comments.
-  const commentLines = [];
+  const commentLines: string[] = [];
   let isComment = true;
   
   for (let line of iterateLines(text)) {
@@ -47,22 +45,18 @@ function *parseFirefoxErrors(text) {
     }
 
     let match = line.match(errorRegExp);
-    if (match) {
+    if (match?.groups) {
       const comment = commentLines.splice(0).join(' ');
       const code = match.groups.code;
       const file = 'nsprpub/pr/include/prerr.h';
-      const href = `https://searchfox.org/mozilla-central/source/nsprpub/pr/include/prerr.h#${lineNumber}`;
-      yield { browser, comment, code, href, file, line: lineNumber };
+      yield { browser, comment, code, file, line: lineNumber };
     } else {
       commentLines.splice(0);
     }
   }
 }
 
-/**
-* @returns {Promise<import("./chrome.js").ErrorDefinition[]>}
-*/
-export async function downloadFirefoxErrors() {
+export async function downloadFirefoxErrors(): Promise<ErrorDefinition[]> {
  const url = 'https://hg.mozilla.org/mozilla-central/raw-file/default/nsprpub/pr/include/prerr.h';
  const response = await fetch(url);
  if (!response.ok) {

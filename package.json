@@ -4,13 +4,16 @@
   "keywords": [],
   "author": "jfhr <me@jfhr.de>",
   "license": "Apache-2.0",
-  "main": "index.js",
+  "main": "bun src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
   "description": "",
   "dependencies": {
-    "ejs": "^3.1.9"
+    "he": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/he": "^1.2.1"
   }
 }

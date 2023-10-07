@@ -1,8 +1,4 @@
-/**
- * @param {string} text
- * @returns {Generator<string>}
- */
-export function *iterateLines(text) {
+export function *iterateLines(text: string): Generator<string> {
   let previousIndex = 0;
   let index;
   while (true) {
