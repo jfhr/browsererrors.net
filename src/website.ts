@@ -13,17 +13,6 @@ function renderHead(title: string) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${title}</title>
     <link rel="stylesheet" href="/index.css">
-    <style>
-        @media (min-width: 576px) {
-            form[rel="search"] {
-                display: flex;
-                gap: var(--spacing);
-            }
-            form[rel="search"] button {
-                max-width: 6em;
-            }
-        }
-    </style>
 </head>`;
 }
 
