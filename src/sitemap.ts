@@ -1,7 +1,6 @@
-import { readAllErrorsFromDatabase } from "./database";
+import { readAllErrorCodesFromDatabase } from "./database";
 
 export function renderSitemap() {
-  const errors = readAllErrorsFromDatabase();
-  const urls = errors.map(error => `https://browsererrors.net/error/${error.code}`);
-  return urls.join('\n');
+  const codes = readAllErrorCodesFromDatabase();
+  return codes.map(code => `https://browsererrors.dev/error/${code}`).join('\n');
 }

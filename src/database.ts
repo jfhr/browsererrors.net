@@ -7,7 +7,8 @@ export function readErrorFromDatabase(code: string): ErrorDefinition|null {
     .get({ $code: code });
 }
 
-export function readAllErrorsFromDatabase(): ErrorDefinition[] {
-  const db = new Database("browsererrors.sqlite");
-  return db.query('SELECT * FROM errors').all();
+export function readAllErrorCodesFromDatabase(): string[] {
+  const db = new Database("browsererrors.sqlite");  
+  return db.query('SELECT code FROM errors')
+    .all();
 }
