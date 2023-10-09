@@ -12,7 +12,8 @@ async function updateDatabase() {
     console.log('browsererrors: updating database');
     console.time('browsererrors: update database timer');
 
-    const process = Bun.spawn(['bun', 'run', './src/update.ts'], {
+    const bun = process.env.BUN_PATH ?? 'bun';
+    const process = Bun.spawn([bun, 'run', './src/update.ts'], {
         onExit(proc, exitCode, signalCode, error) {
             console.log('browsererrors: updated database - exit code: ' + exitCode);
             console.timeEnd('browsererrors: update database timer');
