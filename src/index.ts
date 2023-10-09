@@ -1,4 +1,5 @@
 import { readErrorFromDatabase } from "./database";
+import { renderSitemap } from "./sitemap";
 import { 
     renderIndexPage,
     renderInformationPage,
@@ -60,6 +61,12 @@ function createServer() {
                 return new Response(
                     req.method === 'HEAD' ? '' : renderIndexPage(),
                     { status: 200, headers: { 'content-type': 'text/html' } }
+                )
+            }
+            if (url.pathname === '/sitemap.txt') {
+                return new Response(
+                    req.method === 'HEAD' ? '' : renderSitemap(),
+                    { status: 200, headers: { 'content-type': 'text/plain' } }
                 )
             }
             if (url.pathname === '/search.php') {
