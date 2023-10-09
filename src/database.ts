@@ -9,6 +9,6 @@ export function readErrorFromDatabase(code: string): ErrorDefinition|null {
 
 export function readAllErrorCodesFromDatabase(): string[] {
   const db = new Database("browsererrors.sqlite");  
-  return db.query('SELECT code FROM errors')
-    .all();
+  const rows = db.query('SELECT code FROM errors').all();
+  return rows.map(row => row.code);
 }
