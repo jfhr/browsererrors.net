@@ -1,3 +1,3 @@
-import { updateFromSources } from "./sources";
+import { updateFromSources } from "./sources/index.js";
 
 updateFromSources();

@@ -1,4 +1,4 @@
-import { readAllErrorCodesFromDatabase } from "./database";
+import { readAllErrorCodesFromDatabase } from "./database.js";
 
 export function renderSitemap() {
   const codes = readAllErrorCodesFromDatabase();

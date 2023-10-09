@@ -1,14 +1,12 @@
-import { Database } from "bun:sqlite";
-import { ErrorDefinition } from "./types";
+import Database from "better-sqlite3";
+import { ErrorDefinition } from "./types.js";
 
 export function readErrorFromDatabase(code: string): ErrorDefinition|null {
   const db = new Database("browsererrors.sqlite");  
-  return db.query('SELECT * FROM errors WHERE code = $code')
-    .get({ $code: code });
+  return db.prepare('SELECT * FROM errors WHERE code = ?').get(code);
 }
 
 export function readAllErrorCodesFromDatabase(): string[] {
-  const db = new Database("browsererrors.sqlite");  
-  const rows = db.query('SELECT code FROM errors').all();
-  return rows.map(row => row.code);
+  const db = new Database("browsererrors.sqlite");
+  return db.prepare('SELECT code FROM errors').all().map(row => row.code);
 }

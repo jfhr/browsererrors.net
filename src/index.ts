@@ -1,26 +1,29 @@
-import { readErrorFromDatabase } from "./database";
-import { renderSitemap } from "./sitemap";
+import * as child_process from 'child_process';
+import * as http from 'http';
+import * as fs from 'fs';
+import { readErrorFromDatabase } from "./database.js";
+import { renderSitemap } from "./sitemap.js";
 import { 
     renderIndexPage,
     renderInformationPage,
     renderNotFoundPage,
     renderErrorPage,
     renderCodeNotFoundPage,
-} from "./website";
+} from "./website.js";
 
 async function updateDatabase() {
     console.log('browsererrors: updating database');
     console.time('browsererrors: update database timer');
 
-    const bun = Bun.env.BUN_PATH ?? 'bun';
-    const process = Bun.spawn([bun, 'run', './src/update.ts'], {
-        onExit(proc, exitCode, signalCode, error) {
-            console.log('browsererrors: updated database - exit code: ' + exitCode);
-            console.timeEnd('browsererrors: update database timer');
-        }
-    });
+    const node = process.env.NODE_PATH ?? 'node';
+    const cp = child_process.spawn(node, ['./src/update.js']);
 
-    await process.exited;
+    const exitCode = await new Promise((resolve, reject) => { 
+        cp.on('exit', code => resolve(code));
+        cp.on('error', error => reject(error));
+    });
+    console.log('browsererrors: updated database - exit code: ' + exitCode);
+    console.timeEnd('browsererrors: update database timer');
 }
 
 async function scheduleDatabaseUpdates() {
@@ -36,100 +39,87 @@ function fixErrorCode(code: string): string {
 }
 
 function createServer() {
-    return {
-        fetch(req: Request) {
-            if (req.method === 'OPTIONS') {
-                return new Response(
-                    '', 
-                    { status: 204, headers: { allow: 'HEAD,GET,OPTIONS' } }
-                );
-            }
-            if (req.method !== 'GET' && req.method !== 'HEAD') { 
-                return new Response(
-                    'Method Not Allowed',
-                    { status: 405, headers: { 'content-type': 'text/plain' } }
-                );
-            }
-
-            const url = new URL(req.url);
-            if (url.pathname === '/index.css') {
-                if (req.method === 'HEAD') {
-                    return new Response('', { status: 200, headers: { 'content-type': 'text/css' } });
-                }
-                return new Response(Bun.file('src/index.css'));
-            }
-            if (url.pathname === '/') {
-                return new Response(
-                    req.method === 'HEAD' ? '' : renderIndexPage(),
-                    { status: 200, headers: { 'content-type': 'text/html' } }
-                )
-            }
-            if (url.pathname === '/sitemap.txt') {
-                return new Response(
-                    req.method === 'HEAD' ? '' : renderSitemap(),
-                    { status: 200, headers: { 'content-type': 'text/plain' } }
-                )
-            }
-            if (url.pathname === '/search.php') {
-                if (url.searchParams.has('code')) {
-                    const code = fixErrorCode(url.searchParams.get('code')!);
-                    url.pathname = `/error/${code}`;
-                    url.searchParams.delete('code');
-                    return new Response('', { status: 302, headers: { location: url.toString() } });
-                }
-                return new Response(
-                    req.method === 'HEAD' ? '' : renderNotFoundPage(),
-                    { status: 404, headers: { 'content-type': 'text/html' } }
-                )
-            }
-            {
-                const match = url.pathname.match(/^\/error\/(?<code>[^\/]*)\/?$/);
-                if (match?.groups) {
-                    const { code } = match.groups;
-                    const error = readErrorFromDatabase(code);
-                    if (error) {
-                        return new Response(
-                            req.method === 'HEAD' ? '' : renderInformationPage(error),
-                            { status: 200, headers: { 'content-type': 'text/html' } }
-                        )
-                    }
-                    return new Response(
-                        req.method === 'HEAD' ? '' : renderCodeNotFoundPage(code),
-                        { status: 404, headers: { 'content-type': 'text/html' } }
-                    )
-                }
-            }
-            {
-                const match = url.pathname.match(/^\/api\/(?<code>.*).json$/);
-                if (match?.groups) {
-                    const { code } = match.groups;
-                    const error = readErrorFromDatabase(code);
-                    if (error) {
-                        return new Response(
-                            req.method === 'HEAD' ? '' : JSON.stringify(error),
-                            { status: 200, headers: { 'content-type': 'application/json' } }
-                        )
-                    }
-                    return new Response(
-                        req.method === 'HEAD' ? '' : 'Not Found',
-                        { status: 404, headers: { 'content-type': 'text/plain' } }
-                    )
-                }
-            }
-            return new Response(
-                req.method === 'HEAD' ? '' : renderNotFoundPage(),
-                { status: 404, headers: { 'content-type': 'text/html' } }
-            )
-        },
-        error(e: Error) {
-            return new Response(
-                renderErrorPage(e),
-                { status: 500, headers: { 'content-type': 'text/plain' } }
-            );
+    return http.createServer((req, res) => {
+        if (req.method === 'OPTIONS') {
+            res.writeHead(204, { allow: 'HEAD,GET,OPTIONS' });
+            res.end();
+            return;
         }
-    };
+        if (req.method !== 'HEAD' && req.method !== 'GET') {
+            res.writeHead(405, { 'content-type': 'text/plain' });
+            res.end('Method Not Allowed');
+            return;
+        }
+
+        const url = new URL(req.url!, `http://${req.headers.host}`);
+        if (url.pathname === '/index.css') {
+            res.writeHead(200, { 'content-type': 'text/css' });
+            if (req.method === 'HEAD') { 
+                res.end();
+                return; 
+            }
+            fs.createReadStream('src/index.css').pipe(res);
+            return;
+        }
+        if (url.pathname === '/') {
+            res.writeHead(200, { 'content-type': 'text/html' });
+            res.end(req.method === 'HEAD' ? '' : renderIndexPage());
+            return;
+        }
+        if (url.pathname === '/sitemap.txt') {
+            res.writeHead(200, { 'content-type': 'text/plain' });
+            res.end(req.method === 'HEAD' ? '' : renderSitemap());
+            return;
+        }
+        if (url.pathname === '/search.php') {
+            if (url.searchParams.has('code')) {
+                const code = fixErrorCode(url.searchParams.get('code')!);
+                url.pathname = `/error/${code}`;
+                url.searchParams.delete('code');
+                res.writeHead(302, { location: url.toString() });
+                res.end();
+                return;
+            }
+            res.writeHead(404, { 'content-type': 'text/html' });
+            res.end(req.method === 'HEAD' ? '' : renderNotFoundPage());
+            return;
+        }
+        {
+            const match = url.pathname.match(/^\/error\/(?<code>[^\/]*)\/?$/);
+            if (match?.groups) {
+                const { code } = match.groups;
+                const error = readErrorFromDatabase(code);
+                if (error) {
+                    res.writeHead(200, { 'content-type': 'text/html' });
+                    res.end(req.method === 'HEAD' ? '' : renderInformationPage(error));
+                    return;
+                }
+                res.writeHead(404, { 'content-type': 'text/html' });
+                res.end(req.method === 'HEAD' ? '' : renderCodeNotFoundPage(code));
+                return;
+            }
+        }
+        {
+            const match = url.pathname.match(/^\/api\/(?<code>.*).json$/);
+            if (match?.groups) {
+                const { code } = match.groups;
+                const error = readErrorFromDatabase(code);
+                if (error) {
+                    res.writeHead(200, { 'content-type': 'application/json' });
+                    res.end(req.method === 'HEAD' ? '' : JSON.stringify(error));
+                    return;
+                }
+                res.writeHead(404, { 'content-type': 'text/plain' });
+                res.end(req.method === 'HEAD' ? '' : 'Not Found');
+                return;
+            }
+        }
+        res.writeHead(404, { 'content-type': 'text/html' });
+        res.end(req.method === 'HEAD' ? '' : renderNotFoundPage());
+    });
 }
 
 updateDatabase();
 scheduleDatabaseUpdates();
-Bun.serve(createServer());
+const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+createServer().listen(port);

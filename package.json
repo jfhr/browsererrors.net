@@ -11,9 +11,12 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "better-sqlite3": "^8.7.0",
     "he": "^1.2.0"
   },
   "devDependencies": {
-    "@types/he": "^1.2.1"
+    "@types/he": "^1.2.1",
+    "@types/node": "^20.8.4",
+    "typescript": "^5.2.2"
   }
 }

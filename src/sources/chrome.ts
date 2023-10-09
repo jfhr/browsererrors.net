@@ -1,5 +1,5 @@
-import { iterateLines } from "./iterate-lines";
-import { ErrorDefinition } from "../types";
+import { iterateLines } from "./iterate-lines.js";
+import { ErrorDefinition } from "../types.js";
 
 /**
  * Parse error definitions in Chrome source code, e.g.

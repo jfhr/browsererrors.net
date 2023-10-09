@@ -1,4 +1,4 @@
-import { ErrorDefinition } from "./types";
+import { ErrorDefinition } from "./types.js";
 
 export function chromeHref(file: string, line: number): string {
     return `https://source.chromium.org/chromium/chromium/src/+/main:${file};l=${line}`;

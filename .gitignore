@@ -1,3 +1,4 @@
 browsererrors.sqlite
 bun.lockb
 node_modules/
+src/**/*.js

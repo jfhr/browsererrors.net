@@ -1,5 +1,5 @@
-import { errorHref, errorHrefNoscript } from "./references";
-import { ErrorDefinition } from "./types";
+import { errorHref, errorHrefNoscript } from "./references.js";
+import { ErrorDefinition } from "./types.js";
 import he from 'he';
 
 function escapeHTML(text: string) {

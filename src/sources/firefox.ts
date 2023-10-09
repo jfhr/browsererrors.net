@@ -1,5 +1,5 @@
-import { ErrorDefinition } from "../types";
-import { iterateLines } from "./iterate-lines";
+import { ErrorDefinition } from "../types.js";
+import { iterateLines } from "./iterate-lines.js";
 
 /**
 * Parse error definitions in Firefox source code, e.g.

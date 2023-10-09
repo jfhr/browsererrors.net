@@ -1,4 +1,4 @@
-import { Database } from "bun:sqlite";
+import Database from "better-sqlite3";
 import { downloadChromeErrors } from "./chrome.js";
 import { downloadFirefoxErrors } from "./firefox.js";
 
@@ -11,9 +11,9 @@ export async function updateFromSources() {
   ]);
   const errors = errorResults.flat();
 
-  const db = new Database("browsererrors.sqlite", { create: true });
+  const db = new Database("browsererrors.sqlite");
   
-  db.query(`CREATE TABLE IF NOT EXISTS errors (
+  db.prepare(`CREATE TABLE IF NOT EXISTS errors (
     code TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
     browser TEXT NOT NULL,
     comment TEXT NOT NULL,
@@ -21,18 +21,18 @@ export async function updateFromSources() {
     line INTEGER NOT NULL
   )`).run();
 
-  const insertQuery = db.query(
-    'INSERT INTO errors (browser, code, comment, file, line) VALUES ($browser, $code, $comment, $file, $line)'
+  const insertQuery = db.prepare(
+    'INSERT INTO errors (browser, code, comment, file, line) VALUES (?, ?, ?, ?, ?)'
   );
   const insertTransaction = db.transaction((/** @type {import("./chrome.js").ErrorDefinition[]} */ errors) => {
     for (const error of errors) {
-      insertQuery.run({
-        $browser: error.browser,
-        $code: error.code,
-        $comment: error.comment,
-        $file: error.file,
-        $line: error.line,
-      });
+      insertQuery.run(
+        error.browser,
+        error.code,
+        error.comment,
+        error.file,
+        error.line,
+      );
     }
   });
   insertTransaction(errors);
