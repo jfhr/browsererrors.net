@@ -141,10 +141,6 @@ dialog>article {
   }
 }
 
-a {
-  --text-decoration: none
-}
-
 small {
   --font-size: 0.875em
 }
