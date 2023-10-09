@@ -122,6 +122,6 @@ function createServer() {
     };
 }
 
-// updateDatabase();
-// scheduleDatabaseUpdates();
+updateDatabase();
+scheduleDatabaseUpdates();
 Bun.serve(createServer());
