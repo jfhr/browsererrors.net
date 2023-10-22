@@ -31,7 +31,7 @@ async function scheduleDatabaseUpdates() {
 }
 
 function fixErrorCode(code: string): string {
-    code = code.trim();
+    code = code.trim().toUpperCase();
     if (code.startsWith('ERR_')) {
         code = 'NET::' + code;
     }

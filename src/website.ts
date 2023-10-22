@@ -24,7 +24,7 @@ function renderInlineScript() {
          * @returns {string}
          */
         function fixErrorCode(code) {
-            code = code.trim();
+            code = code.trim().toUpperCase();
             if (code.startsWith('ERR_')) {
                 code = 'NET::' + code;
             }
