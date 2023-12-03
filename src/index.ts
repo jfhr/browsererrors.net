@@ -122,4 +122,4 @@ function createServer() {
 updateDatabase();
 scheduleDatabaseUpdates();
 const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
-createServer().listen(port);
+createServer().listen(port, () => console.log(`browsererrors.net: listening on http://localhost:${port}`));
