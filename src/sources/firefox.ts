@@ -35,12 +35,14 @@ function *parseFirefoxErrors(text: string): Generator<ErrorDefinition> {
 
     if (line.startsWith('/*')) {
       isComment = true;
+      line = line.substring(2).trim();
     }
     if (isComment) {
-      commentLines.push(line);
       if (line.includes('*/')) {
         isComment = false;
+        line = line.substring(0, line.length -2).trim();
       }
+      commentLines.push(line);
       continue;
     }
 

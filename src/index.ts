@@ -85,7 +85,7 @@ function createServer() {
             {
                 const match = url.pathname.match(/^\/error\/(?<code>[^\/]*)\/?$/);
                 if (match?.groups) {
-                    const { code } = match.groups;
+                    const code = fixErrorCode(match.groups.code);
                     const error = readErrorFromDatabase(code);
                     if (error) {
                         return new Response(
@@ -132,4 +132,5 @@ function createServer() {
 
 updateDatabase();
 scheduleDatabaseUpdates();
-Bun.serve(createServer());
+const server = Bun.serve(createServer());
+console.log(`browserrors.net: server listening on: ${server.protocol}://${server.hostname}:${server.port} (development=${server.development})`);

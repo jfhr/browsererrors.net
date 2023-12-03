@@ -39,13 +39,13 @@ function *parseChromeErrors(text: string): Generator<ErrorDefinition> {
     lineNumber++;
 
     if (line.startsWith('//')) {
-      commentLines.push(line);
+      commentLines.push(line.substring(2).trim());
       continue;
     }
 
     let match = line.match(netErrorRegExp);
     if (match?.groups) {
-      const comment = commentLines.splice(0).join('\n');
+      const comment = commentLines.splice(0).join(' ');
       const code = 'NET::ERR_' + match.groups.shortcode;
       const file = 'net/base/net_error_list.h';
       yield { browser, comment, code, file, line: lineNumber };
