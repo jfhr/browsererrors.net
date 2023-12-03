@@ -32,7 +32,7 @@ function renderInlineScript() {
         }
 
         /** @type {HTMLFormElement} */
-        const form = document.querySelector('form[rel="search"]');
+        const form = document.querySelector('search form');
         form.addEventListener('submit', event => {
             event.preventDefault();
             const data = new FormData(form);
@@ -61,10 +61,12 @@ ${renderHead('BrowserErrors.net')}
                 Enter a browser error code:
             </label>
         </p>
-        <form action="/search.php" rel="search">
-            <input type="text" name="code" id="code" required autofocus>
-            <button>Search</button>
-        </form>
+        <search>
+            <form action="/search.php" role="search" rel="search">
+                <input type="text" name="code" id="code" required autofocus>
+                <button>Search</button>
+            </form>
+        </search>
         <p>
             For example:
             <ul>
@@ -110,13 +112,13 @@ function renderSourceLink(error: ErrorDefinition) {
 
     if (href !== hrefNoscript) {
         return `<noscript>
-            <a href="${escapeHTML(hrefNoscript)}" rel="nofollow">
-            ${escapeHTML(error.file)}, line ${escapeHTML(error.line.toString())}</a>.
+        <cite><a href="${escapeHTML(hrefNoscript)}" rel="nofollow">
+            ${escapeHTML(error.file)}, line ${escapeHTML(error.line.toString())}</a></cite>.
         </noscript>
         <script>
             document.write(
-                '<a href="${escapeHTML(href)}" rel="nofollow">'
-                + '${escapeHTML(error.file)}, line ${escapeHTML(error.line.toString())}</a>.'
+                '<cite><a href="${escapeHTML(href)}" rel="nofollow">'
+                + '${escapeHTML(error.file)}, line ${escapeHTML(error.line.toString())}</a></cite>.'
             );
         </script>`;
     }
@@ -142,10 +144,12 @@ function renderFooter() {
             BrowserErrors.net provides details on error codes used in Google Chrome and Mozilla Firefox,
             from the source code of those browsers.
         </p>
-        <form action="/search.php" rel="search">
-            <input type="text" name="code" id="code" required placeholder="Enter another error code">
-            <button>Search</button>
-        </form>
+        <search>
+            <form action="/search.php" role="search" rel="search">
+                <input type="text" name="code" id="code" required placeholder="Enter another error code">
+                <button>Search</button>
+            </form>
+        </search>
         <p>
             This website, except where otherwise noted, is licensed under the 
             <a href="https://www.apache.org/licenses/LICENSE-2.0.txt">
@@ -171,7 +175,7 @@ export function renderInformationPage(error: ErrorDefinition) {
                 <p>
                     ${escapeHTML(error.code)} is an error in ${escapeHTML(error.browser)} with the description:
                 </p>
-                <pre><code>${escapeHTML(error.comment)}</code></pre>
+                <blockquote>${escapeHTML(error.comment)}</blockquote>
                 <p>
                     It is defined in the file
                     ${renderSourceLink(error)}
